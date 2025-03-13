@@ -1,0 +1,20 @@
+# Ignore log files
+SaveMyCell.log
+
+# Ignore Python virtual environments
+venv/
+env/
+
+# Ignore Python bytecode
+__pycache__/
+*.pyc
+
+# Ignore PyInstaller build files (if you package the app later)
+dist/
+build/
+externals/
+*.spec
+
+# Ignore other temporary files
+*.log
+*.tmp
