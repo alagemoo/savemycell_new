@@ -3,3 +3,4 @@ pillow
 pystray
 darkdetect
 pywin32
+customtkinter
