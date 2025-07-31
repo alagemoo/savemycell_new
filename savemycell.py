@@ -226,7 +226,7 @@ class BatteryMonitor:
 
 # System Tray
 def create_tray_icon(app):
-    global MINIMIZED_TO_TRAY
+    global MINIMIZED_TO_TRAY 
     if getattr(sys, 'frozen', False):
         base_path = sys._MEIPASS
     else:

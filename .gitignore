@@ -4,6 +4,7 @@ SaveMyCell.log
 # Ignore Python virtual environments
 venv/
 env/
+.venv
 
 # Ignore Python bytecode
 __pycache__/
