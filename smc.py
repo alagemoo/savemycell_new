@@ -51,6 +51,74 @@ ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 
 # Utility Functions (from savemycell.py)
+def generate_battery_report():
+    import os
+    import webbrowser
+
+    os.system('powercfg /batteryreport /output battery_report.html')
+    webbrowser.open('battery_report.html')
+
+    return "Generated battery report."
+
+
+def get_metrics_from_wmi():
+    import wmi
+
+    c = wmi.WMI(namespace="root\\WMI")
+
+    voltage = "N/A"
+    remaining_capacity = "N/A"
+    charge_rate = "N/A"
+
+    try:
+        battery_info = c.BatteryFullChargedCapacity()[0]
+        print("Full Charged Capacity:", battery_info.FullChargedCapacity)
+
+        battery_status = c.BatteryStatus()[0]
+        print("Voltage:", battery_status.Voltage)
+        print("RemainingCapacity:", battery_status.RemainingCapacity)
+        print("ChargeRate:", battery_status.ChargeRate)
+
+        voltage = battery_status.Voltage
+        remaining_capacity = battery_status.RemainingCapacity
+        charge_rate = battery_status.ChargeRate
+
+    except Exception as e:
+        pass
+
+
+    return {
+        "voltage": voltage,
+        "remaining_capacity": remaining_capacity,
+        "charge_rate": charge_rate
+    }
+
+
+def get_metrics_from_battery_report():
+    if not os.path.exists("battery_report.html"):
+        generate_battery_report()
+    
+    from bs4 import BeautifulSoup
+
+    with open("battery_report.html", "r", encoding="utf-8") as f:
+        soup = BeautifulSoup(f, "lxml")
+
+    for table in soup.find_all("table"):
+        if "Installed batteries" in table.text:
+            print("=== Installed Batteries ===")
+            print(table.text.strip())
+
+        if "Battery capacity history" in table.text:
+            print("=== Battery Capacity History ===")
+            print(table.text.strip())
+
+        if "Battery life estimates" in table.text:
+            print("=== Battery Life Estimates ===")
+            print(table.text.strip())
+
+
+
+
 def calculate_battery_time(battery):
     if not battery:
         return "Time: N/A"
@@ -1030,5 +1098,8 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
         self.root.mainloop()
 
 if __name__ == "__main__":
+    get_metrics_from_battery_report()
+    get_metrics_from_wmi()
+    
     app = BatteryMonitorApp()
     app.run()
