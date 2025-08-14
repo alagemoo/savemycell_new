@@ -352,10 +352,13 @@ class BatteryMonitorApp:
         self.setup_left_panel()
         self.show_home_page()
 
-    def setup_left_panel(self):
+    def setup_left_panel(self, refresh=False):
+        if refresh:
+            self.clear_left_frame()
+
         user_frame = ctk.CTkFrame(self.left_frame, fg_color="transparent")
         user_frame.pack(fill="x", padx=15, pady=(15, 20))
-
+        
         self.user_image_frame = ctk.CTkFrame(user_frame, width=80, height=80, corner_radius=40)
         self.user_image_frame.pack(pady=(0, 10))
         user_icon_label = ctk.CTkLabel(self.user_image_frame, text="👤", font=("Arial", 60))
@@ -371,6 +374,7 @@ class BatteryMonitorApp:
                 logger.info(f"Custom logo loaded in left panel from {self.custom_logo_path}")
             except Exception as e:
                 logger.error(f"Failed to load custom logo in left panel: {e}")
+        
 
         self.name_label = ctk.CTkLabel(user_frame, text=getpass.getuser(), font=ctk.CTkFont(size=16, weight="bold"))
         self.name_label.pack()
@@ -405,6 +409,11 @@ class BatteryMonitorApp:
 
     def clear_right_frame(self):
         for widget in self.right_frame.winfo_children():
+            widget.destroy()
+    
+
+    def clear_left_frame(self):
+        for widget in self.left_frame.winfo_children():
             widget.destroy()
 
     def show_home_page(self):
@@ -754,16 +763,18 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
             self.custom_logo_path = self.logo_var.get().strip()
             if self.custom_logo_path and not os.path.exists(self.custom_logo_path):
                 messagebox.showwarning("Warning", "Logo file not found. It won’t be displayed until a valid path is provided.")
-            self.is_dark_mode = self.theme_var.get() == "dark"
-            self.appearance_mode = "dark" if self.is_dark_mode else "light"
-            self.save_settings_to_file()
-            self.setup_left_panel()  # Refresh left panel for logo
+            
+            self.setup_left_panel(refresh=True)
             self.show_settings_confirmation()
+            self.save_settings_to_file()
         except ValueError as ve:
             messagebox.showerror("Error", str(ve))
         except Exception as e:
             logger.error(f"Error saving settings: {e}")
             messagebox.showerror("Error", f"An unexpected error occurred: {e}")
+    
+
+        
 
     def show_settings_confirmation(self):
         confirmation_window = ctk.CTkToplevel(self.root)

@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# savemycell_new
-=======
 # Save My Cell
 
 A battery monitoring application to notify users when their laptop battery is fully charged.
@@ -23,4 +20,3 @@ Edit `config.ini` to adjust constants like `WindowWidth`, `UnplugThreshold`, etc
 
 ## License
 MIT License
->>>>>>> 5bbbc4f (Initial commit of SaveMyCell project)
