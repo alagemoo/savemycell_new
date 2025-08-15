@@ -18,3 +18,5 @@ externals/
 # Ignore other temporary files
 *.log
 *.tmp
+
+battery_report.html
