@@ -42,7 +42,7 @@ RUNNING = True
 MINIMIZED_TO_TRAY = False
 UNPLUG_PROMPT_ACTIVE = False
 PROMPT_QUEUE = queue.Queue()
-WINDOW_WIDTH, WINDOW_HEIGHT = 900, 600
+WINDOW_WIDTH, WINDOW_HEIGHT = 800, 600
 UNPLUG_THRESHOLD = 90
 REFRESH_INTERVAL = 120
 POWER_SAVING_REFRESH_INTERVAL = 600
@@ -672,7 +672,7 @@ For technical support, feature requests, or general inquiries, please contact ou
 Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
         """
         text_label = ctk.CTkLabel(content_frame, text=about_text.strip(),
-                                  font=ctk.CTkFont(size=12), justify="left", wraplength=500)
+                                  font=ctk.CTkFont(size=12), justify="left", wraplength=300)
         text_label.pack(padx=20, pady=20, anchor="w")
 
     def show_settings_page(self):
@@ -768,13 +768,13 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
             self.theme_var.set("dark")
             self.change_appearance_mode("dark")
 
-        light_preview_frame = ctk.CTkFrame(mode_frame, width=220, height=220, corner_radius=10,
+        light_preview_frame = ctk.CTkFrame(mode_frame, width=120, height=120, corner_radius=10,
                                            fg_color="#f7f7f7", border_width=1, border_color="#bdbdbd", cursor="hand2")
-        light_preview_frame.pack(side="left", padx=(0, 40))
+        light_preview_frame.pack(side="left", padx=(0, 20))
         light_preview_frame.pack_propagate(False)
         light_preview_frame.bind("<Button-1>", select_light_mode)
 
-        ctk.CTkCanvas(light_preview_frame, width=200, height=200,
+        ctk.CTkCanvas(light_preview_frame, width=100, height=100,
                       bg="#f7f7f7", highlightthickness=0, cursor="hand2").pack()
         canvas_light = light_preview_frame.winfo_children()[0]
         canvas_light.create_oval(
@@ -797,13 +797,13 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
             30, 170, 190, 185, fill="#e0e0e0", outline="#e0e0e0")
         canvas_light.bind("<Button-1>", select_light_mode)
 
-        dark_preview_frame = ctk.CTkFrame(mode_frame, width=220, height=220, corner_radius=10,
+        dark_preview_frame = ctk.CTkFrame(mode_frame, width=120, height=120, corner_radius=10,
                                           fg_color="#232323", border_width=1, border_color="#232323", cursor="hand2")
         dark_preview_frame.pack(side="left", padx=(0, 0))
         dark_preview_frame.pack_propagate(False)
         dark_preview_frame.bind("<Button-1>", select_dark_mode)
 
-        ctk.CTkCanvas(dark_preview_frame, width=200, height=200,
+        ctk.CTkCanvas(dark_preview_frame, width=100, height=100,
                       bg="#232323", highlightthickness=0, cursor="hand2").pack()
         canvas_dark = dark_preview_frame.winfo_children()[0]
         canvas_dark.create_oval(
@@ -1053,9 +1053,9 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
 
         info_label = ctk.CTkLabel(main_frame,
                                   text="Unplugging your charger when the battery is fully charged:\n"
-                                       "- Extends battery lifespan by preventing overcharging.\n"
-                                       "- Reduces energy waste and lowers your carbon footprint.\n"
-                                       "- Protects your device from potential heat damage.",
+                                       "• Extends battery lifespan by preventing overcharging.\n"
+                                       "• Reduces energy waste and lowers your carbon footprint.\n"
+                                       "• Protects your device from potential heat damage.",
                                   font=ctk.CTkFont(size=12), justify="center")
         info_label.pack(pady=(0, 16))
 
