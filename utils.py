@@ -83,7 +83,6 @@ def load_settings_from_file(log_dir, defaults, update_theme=None, configure_styl
         set_auto_start(True)
     return settings
 
-
 def calculate_battery_time(battery: Optional[psutil.sensors_battery]) -> str:
     if not battery:
         return "Time: N/A"
@@ -155,7 +154,7 @@ def set_auto_start(enabled: bool) -> bool:
                         executable_path = installed_path
                 registry_value = f'"{executable_path}"'
             else:
-                python_exe = sys.executable
+                python_exe = sys.executable.replace("python.exe", "pythonw.exe")  # Use pythonw.exe for windowless execution
                 script_path = os.path.abspath(__file__)
                 if not os.path.exists(python_exe) or not os.path.exists(script_path):
                     logger.error(f"Python or script path not found: {python_exe}, {script_path}")

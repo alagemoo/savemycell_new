@@ -28,8 +28,7 @@ except ImportError:
 VERSION = "FREE"  # Can be "FREE" or "PRO"
 
 # Configure logging
-log_dir = os.path.join(os.path.expanduser(
-    "~"), "AppData", "Local", "SaveMyCell")
+log_dir = os.path.join(os.path.expanduser("~"), "AppData", "Local", "SaveMyCell")
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 log_file = os.path.join(log_dir, "SaveMyCell.log")
@@ -53,9 +52,7 @@ PROMPT_TIMEOUT = 30
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 
-# Utility Functions (from savemycell.py)
-
-
+# Utility Functions
 def generate_battery_report():
     import os
     import webbrowser
@@ -64,7 +61,6 @@ def generate_battery_report():
     webbrowser.open('battery_report.html')
 
     return "Generated battery report."
-
 
 def get_metrics_from_wmi():
     import wmi
@@ -97,7 +93,6 @@ def get_metrics_from_wmi():
         "charge_rate": charge_rate
     }
 
-
 def get_metrics_from_battery_report():
     print("got here")
     if not os.path.exists("battery_report.html"):
@@ -111,7 +106,6 @@ def get_metrics_from_battery_report():
             }
 
     return extract_battery_details("battery_report.html")
-
 
 def extract_battery_details(report_path="battery_report.html"):
     details = {
@@ -131,8 +125,7 @@ def extract_battery_details(report_path="battery_report.html"):
 
         for row in rows:
             print(f"{row}\n")
-            cells = [c.get_text(strip=True)
-                     for c in row.find_all(["td", "th"])]
+            cells = [c.get_text(strip=True) for c in row.find_all(["td", "th"])]
             if len(cells) == 2:
                 key, value = cells
                 if "Design Capacity".upper() in key:
@@ -143,7 +136,6 @@ def extract_battery_details(report_path="battery_report.html"):
                     details["cycle_count"] = value
 
     return details
-
 
 def calculate_battery_time(battery):
     if not battery:
@@ -163,7 +155,6 @@ def calculate_battery_time(battery):
         hours = total_seconds // 3600
         minutes = (total_seconds % 3600) // 60
         return f"Time to Full Charge: {hours}h {minutes}m" if remaining_percent > 0 else "Time to Full Charge: Fully Charged"
-
 
 def get_system_details():
     details = {
@@ -194,14 +185,12 @@ def get_system_details():
         })
     return details
 
-
 def get_diagnostic_sections():
     mem = psutil.virtual_memory()
     memory_usage = f"{mem.used / 1e9:.1f} GB / {mem.total / 1e9:.1f} GB"
     disk = psutil.disk_usage('/')
     storage_usage = f"Storage Usage: {disk.used / 1e9:.1f} GB / {disk.total / 1e9:.1f} GB"
-    network_status = "Connected" if socket.gethostbyname(
-        socket.gethostname()) else "Disconnected"
+    network_status = "Connected" if socket.gethostbyname(socket.gethostname()) else "Disconnected"
     battery = psutil.sensors_battery()
     battery_summary = [
         str(battery.percent) if battery else "N/A",
@@ -214,16 +203,12 @@ def get_diagnostic_sections():
 
     details_from_battery_report = get_metrics_from_battery_report()
 
-    design_capacity = details_from_battery_report.get(
-        "design_capacity", "Unknown")
-    full_charge_capacity = details_from_battery_report.get(
-        "full_charge_capacity", "Unknown")
+    design_capacity = details_from_battery_report.get("design_capacity", "Unknown")
+    full_charge_capacity = details_from_battery_report.get("full_charge_capacity", "Unknown")
     cycle_count = details_from_battery_report.get("cycle_count", "Unknown")
 
     try:
-        capacity_retention = int(full_charge_capacity.lower().split(" mwh")[0].replace(
-            ",", "")) / int(design_capacity.lower().split(" mwh")[0].replace(",", ""))
-        
+        capacity_retention = int(full_charge_capacity.lower().split(" mwh")[0].replace(",", "")) / int(design_capacity.lower().split(" mwh")[0].replace(",", ""))
         capacity_retention = f"{capacity_retention:.2f}"
     except Exception as e:
         print(e)
@@ -245,7 +230,6 @@ def get_diagnostic_sections():
     ]
     return sections
 
-
 def set_auto_start(enabled: bool) -> bool:
     try:
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
@@ -255,22 +239,19 @@ def set_auto_start(enabled: bool) -> bool:
             if getattr(sys, 'frozen', False):
                 executable_path = sys.executable
                 if not os.path.exists(executable_path):
-                    logger.error(
-                        f"Executable path does not exist: {executable_path}")
+                    logger.error(f"Executable path does not exist: {executable_path}")
                     winreg.CloseKey(key)
                     return False
                 if os.path.dirname(executable_path).lower() == os.path.join(os.environ.get("ProgramFiles", "").lower(), "SaveMyCell").lower():
-                    installed_path = os.path.join(os.environ.get(
-                        "ProgramFiles", ""), "SaveMyCell", "SaveMyCell.exe")
+                    installed_path = os.path.join(os.environ.get("ProgramFiles", ""), "SaveMyCell", "SaveMyCell.exe")
                     if os.path.exists(installed_path):
                         executable_path = installed_path
                 registry_value = f'"{executable_path}"'
             else:
-                python_exe = sys.executable
+                python_exe = sys.executable.replace("python.exe", "pythonw.exe")  # Use pythonw.exe for windowless execution
                 script_path = os.path.abspath(__file__)
                 if not os.path.exists(python_exe) or not os.path.exists(script_path):
-                    logger.error(
-                        f"Python or script path not found: {python_exe}, {script_path}")
+                    logger.error(f"Python or script path not found: {python_exe}, {script_path}")
                     winreg.CloseKey(key)
                     return False
                 registry_value = f'"{python_exe}" "{script_path}"'
@@ -283,7 +264,6 @@ def set_auto_start(enabled: bool) -> bool:
     except Exception as e:
         logger.error(f"Failed to set auto-start: {str(e)}")
         return False
-
 
 def is_auto_start_enabled() -> bool:
     try:
@@ -301,7 +281,6 @@ def is_auto_start_enabled() -> bool:
         logger.error(f"Failed to check auto-start: {e}")
         return False
 
-
 def get_idle_time() -> float:
     if win32api is None or win32con is None:
         logger.warning("pywin32 not installed. Idle time detection disabled.")
@@ -316,8 +295,6 @@ def get_idle_time() -> float:
         return 0
 
 # Monitoring Logic
-
-
 class BatteryMonitor:
     def __init__(self, app):
         self.app = app
@@ -350,8 +327,7 @@ class BatteryMonitor:
                     if battery.percent >= self.app.unplug_threshold and battery.power_plugged:
                         if not UNPLUG_PROMPT_ACTIVE:
                             if self.last_battery and not self.last_battery.power_plugged and battery.power_plugged:
-                                logger.info(
-                                    "Charger replugged above threshold, triggering prompt...")
+                                logger.info("Charger replugged above threshold, triggering prompt...")
                                 PROMPT_QUEUE.put(True)
                             elif current_time - self.last_unplug_prompt_time >= 300 or not self.last_unplug_prompt_time:
                                 logger.info("Triggering unplug prompt...")
@@ -360,8 +336,7 @@ class BatteryMonitor:
                     elif self.last_battery and not battery.power_plugged and self.last_battery.power_plugged:
                         if battery.percent < self.app.unplug_threshold:
                             self.last_unplug_prompt_time = 0
-                            logger.info(
-                                "Charger unplugged and below threshold, resetting cooldown.")
+                            logger.info("Charger unplugged and below threshold, resetting cooldown.")
                     self.last_battery = battery
                     if self.app.root.winfo_exists() and not MINIMIZED_TO_TRAY:
                         if self.last_percent is None or self.last_plugged is None or \
@@ -379,8 +354,6 @@ class BatteryMonitor:
                 time.sleep(10)
 
 # System Tray
-
-
 def create_tray_icon(app):
     global MINIMIZED_TO_TRAY
     if getattr(sys, 'frozen', False):
@@ -394,8 +367,7 @@ def create_tray_icon(app):
             icon = icon.resize((32, 32), Image.Resampling.LANCZOS)
             logger.info(f"Loaded tray icon from {icon_path}")
         else:
-            logger.warning(
-                f"Icon file {icon_path} not found or empty. Using fallback.")
+            logger.warning(f"Icon file {icon_path} not found or empty. Using fallback.")
             icon = Image.new("RGBA", (32, 32), (245, 245, 245, 255))
     except Exception as e:
         logger.error(f"Failed to load tray icon: {e}")
@@ -410,7 +382,6 @@ def create_tray_icon(app):
         tray.run()
     return tray, threading.Thread(target=run_tray, daemon=True)
 
-
 def restore_app(app):
     global MINIMIZED_TO_TRAY
     logger.info("Attempting to restore app from tray...")
@@ -419,7 +390,6 @@ def restore_app(app):
         return
     app.root.after(0, lambda: app.show_main_screen())
     logger.info("Restore scheduled in main thread.")
-
 
 def quit_app(app):
     global RUNNING, MINIMIZED_TO_TRAY
@@ -433,8 +403,6 @@ def quit_app(app):
     logger.info("App quit successfully.")
 
 # UI Class
-
-
 class BatteryMonitorApp:
     def __init__(self):
         self.root = ctk.CTk()
@@ -471,15 +439,13 @@ class BatteryMonitorApp:
 
         # Start monitoring
         self.monitor = BatteryMonitor(self)
-        self.monitor_thread = threading.Thread(
-            target=self.monitor.run, daemon=True)
+        self.monitor_thread = threading.Thread(target=self.monitor.run, daemon=True)
         self.monitor_thread.start()
         self.root.after(1000, self.check_theme_change)
         self.root.after(500, self.check_prompt_queue)
 
     def setup_main_layout(self):
-        self.left_frame = ctk.CTkFrame(
-            self.main_container, width=250, corner_radius=10)
+        self.left_frame = ctk.CTkFrame(self.main_container, width=250, corner_radius=10)
         self.left_frame.pack(side="left", fill="y", padx=(0, 10))
         self.left_frame.pack_propagate(False)
 
@@ -496,11 +462,9 @@ class BatteryMonitorApp:
         user_frame = ctk.CTkFrame(self.left_frame, fg_color="transparent")
         user_frame.pack(fill="x", padx=15, pady=(15, 20))
 
-        self.user_image_frame = ctk.CTkFrame(
-            user_frame, width=80, height=80, corner_radius=40)
+        self.user_image_frame = ctk.CTkFrame(user_frame, width=80, height=80, corner_radius=40)
         self.user_image_frame.pack(pady=(0, 10))
-        user_icon_label = ctk.CTkLabel(
-            self.user_image_frame, text="👤", font=("Arial", 60))
+        user_icon_label = ctk.CTkLabel(self.user_image_frame, text="👤", font=("Arial", 60))
         user_icon_label.place(relx=0.5, rely=0.5, anchor="center")
 
         if self.custom_logo_path and os.path.exists(self.custom_logo_path):
@@ -510,13 +474,11 @@ class BatteryMonitorApp:
                 logo_photo = ImageTk.PhotoImage(logo_img)
                 user_icon_label.configure(image=logo_photo, text="")
                 user_icon_label.image = logo_photo
-                logger.info(
-                    f"Custom logo loaded in left panel from {self.custom_logo_path}")
+                logger.info(f"Custom logo loaded in left panel from {self.custom_logo_path}")
             except Exception as e:
                 logger.error(f"Failed to load custom logo in left panel: {e}")
 
-        self.name_label = ctk.CTkLabel(
-            user_frame, text=getpass.getuser(), font=ctk.CTkFont(size=16, weight="bold"))
+        self.name_label = ctk.CTkLabel(user_frame, text=getpass.getuser(), font=ctk.CTkFont(size=16, weight="bold"))
         self.name_label.pack()
 
         nav_frame = ctk.CTkFrame(self.left_frame, fg_color="transparent")
@@ -562,8 +524,7 @@ class BatteryMonitorApp:
         home_content = ctk.CTkFrame(self.right_frame, fg_color="transparent")
         home_content.pack(fill="both", expand=True, padx=20, pady=20)
 
-        battery_frame = ctk.CTkFrame(
-            home_content, fg_color="transparent", height=180, width=350)
+        battery_frame = ctk.CTkFrame(home_content, fg_color="transparent", height=180, width=350)
         battery_frame.pack(pady=(20, 20))
         battery_frame.pack_propagate(False)
 
@@ -590,8 +551,7 @@ class BatteryMonitorApp:
         self.battery_status_labels = []
         for item in battery_summary:
             if item:
-                detail_label = ctk.CTkLabel(
-                    info_frame, text=item, font=ctk.CTkFont(size=14))
+                detail_label = ctk.CTkLabel(info_frame, text=item, font=ctk.CTkFont(size=14))
                 detail_label.pack(pady=2)
                 self.battery_status_labels.append(detail_label)
 
@@ -710,8 +670,7 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
             else:
                 self.threshold_var.set(self.unplug_threshold)
 
-        self.threshold_entry = ctk.CTkEntry(
-            general_frame, textvariable=self.threshold_var, width=80)
+        self.threshold_entry = ctk.CTkEntry(general_frame, textvariable=self.threshold_var, width=80)
         self.threshold_entry.pack(anchor="w", padx=20, pady=(0, 10))
         self.threshold_var.trace_add("write", on_threshold_change)
 
@@ -719,8 +678,7 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
                                      font=ctk.CTkFont(size=14))
         refresh_label.pack(anchor="w", padx=20, pady=(0, 5))
         self.refresh_var = tk.IntVar(value=self.refresh_interval)
-        self.refresh_entry = ctk.CTkEntry(
-            general_frame, textvariable=self.refresh_var, width=80)
+        self.refresh_entry = ctk.CTkEntry(general_frame, textvariable=self.refresh_var, width=80)
         self.refresh_entry.pack(anchor="w", padx=20, pady=(0, 10))
         if VERSION == "FREE":
             self.refresh_entry.configure(state="disabled")
@@ -729,8 +687,7 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
                                           font=ctk.CTkFont(size=14))
         power_saving_label.pack(anchor="w", padx=20, pady=(0, 5))
         self.power_saving_var = tk.BooleanVar(value=self.power_saving_mode)
-        power_saving_check = ctk.CTkCheckBox(
-            general_frame, text="", variable=self.power_saving_var)
+        power_saving_check = ctk.CTkCheckBox(general_frame, text="", variable=self.power_saving_var)
         power_saving_check.pack(anchor="w", padx=20, pady=(0, 10))
 
         custom_frame = ctk.CTkFrame(content_frame)
@@ -744,8 +701,7 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
                                   font=ctk.CTkFont(size=14))
         logo_label.pack(anchor="w", padx=20, pady=(0, 5))
         self.logo_var = tk.StringVar(value=self.custom_logo_path)
-        logo_entry = ctk.CTkEntry(
-            custom_frame, textvariable=self.logo_var, width=200)
+        logo_entry = ctk.CTkEntry(custom_frame, textvariable=self.logo_var, width=200)
         logo_entry.pack(anchor="w", padx=20, pady=(0, 5))
         ctk.CTkButton(custom_frame, text="Browse",
                       command=lambda: self.logo_var.set(filedialog.askopenfilename(
@@ -777,24 +733,15 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
         ctk.CTkCanvas(light_preview_frame, width=100, height=100,
                       bg="#f7f7f7", highlightthickness=0, cursor="hand2").pack()
         canvas_light = light_preview_frame.winfo_children()[0]
-        canvas_light.create_oval(
-            30, 30, 70, 70, fill="#dddddd", outline="#dddddd")
-        canvas_light.create_rectangle(
-            30, 80, 110, 95, fill="#dddddd", outline="#dddddd")
-        canvas_light.create_rectangle(
-            30, 100, 110, 115, fill="#dddddd", outline="#dddddd")
-        canvas_light.create_rectangle(
-            120, 30, 190, 40, fill="#dddddd", outline="#dddddd")
-        canvas_light.create_rectangle(
-            120, 45, 190, 55, fill="#dddddd", outline="#dddddd")
-        canvas_light.create_rectangle(
-            120, 60, 190, 70, fill="#dddddd", outline="#dddddd")
-        canvas_light.create_rectangle(
-            30, 130, 190, 145, fill="#e0e0e0", outline="#e0e0e0")
-        canvas_light.create_rectangle(
-            30, 150, 190, 165, fill="#e0e0e0", outline="#e0e0e0")
-        canvas_light.create_rectangle(
-            30, 170, 190, 185, fill="#e0e0e0", outline="#e0e0e0")
+        canvas_light.create_oval(30, 30, 70, 70, fill="#dddddd", outline="#dddddd")
+        canvas_light.create_rectangle(30, 80, 110, 95, fill="#dddddd", outline="#dddddd")
+        canvas_light.create_rectangle(30, 100, 110, 115, fill="#dddddd", outline="#dddddd")
+        canvas_light.create_rectangle(120, 30, 190, 40, fill="#dddddd", outline="#dddddd")
+        canvas_light.create_rectangle(120, 45, 190, 55, fill="#dddddd", outline="#dddddd")
+        canvas_light.create_rectangle(120, 60, 190, 70, fill="#dddddd", outline="#dddddd")
+        canvas_light.create_rectangle(30, 130, 190, 145, fill="#e0e0e0", outline="#e0e0e0")
+        canvas_light.create_rectangle(30, 150, 190, 165, fill="#e0e0e0", outline="#e0e0e0")
+        canvas_light.create_rectangle(30, 170, 190, 185, fill="#e0e0e0", outline="#e0e0e0")
         canvas_light.bind("<Button-1>", select_light_mode)
 
         dark_preview_frame = ctk.CTkFrame(mode_frame, width=120, height=120, corner_radius=10,
@@ -806,35 +753,24 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
         ctk.CTkCanvas(dark_preview_frame, width=100, height=100,
                       bg="#232323", highlightthickness=0, cursor="hand2").pack()
         canvas_dark = dark_preview_frame.winfo_children()[0]
-        canvas_dark.create_oval(
-            30, 30, 70, 70, fill="#bdbdbd", outline="#bdbdbd")
-        canvas_dark.create_rectangle(
-            30, 80, 110, 95, fill="#bdbdbd", outline="#bdbdbd")
-        canvas_dark.create_rectangle(
-            30, 100, 110, 115, fill="#bdbdbd", outline="#bdbdbd")
-        canvas_dark.create_rectangle(
-            120, 30, 190, 40, fill="#bdbdbd", outline="#bdbdbd")
-        canvas_dark.create_rectangle(
-            120, 45, 190, 55, fill="#bdbdbd", outline="#bdbdbd")
-        canvas_dark.create_rectangle(
-            120, 60, 190, 70, fill="#bdbdbd", outline="#bdbdbd")
-        canvas_dark.create_rectangle(
-            30, 130, 190, 145, fill="#444444", outline="#444444")
-        canvas_dark.create_rectangle(
-            30, 150, 190, 165, fill="#444444", outline="#444444")
-        canvas_dark.create_rectangle(
-            30, 170, 190, 185, fill="#444444", outline="#444444")
+        canvas_dark.create_oval(30, 30, 70, 70, fill="#bdbdbd", outline="#bdbdbd")
+        canvas_dark.create_rectangle(30, 80, 110, 95, fill="#bdbdbd", outline="#bdbdbd")
+        canvas_dark.create_rectangle(30, 100, 110, 115, fill="#bdbdbd", outline="#bdbdbd")
+        canvas_dark.create_rectangle(120, 30, 190, 40, fill="#bdbdbd", outline="#bdbdbd")
+        canvas_dark.create_rectangle(120, 45, 190, 55, fill="#bdbdbd", outline="#bdbdbd")
+        canvas_dark.create_rectangle(120, 60, 190, 70, fill="#bdbdbd", outline="#bdbdbd")
+        canvas_dark.create_rectangle(30, 130, 190, 145, fill="#444444", outline="#444444")
+        canvas_dark.create_rectangle(30, 150, 190, 165, fill="#444444", outline="#444444")
+        canvas_dark.create_rectangle(30, 170, 190, 185, fill="#444444", outline="#444444")
         canvas_dark.bind("<Button-1>", select_dark_mode)
 
         dark_radio = ctk.CTkRadioButton(mode_frame, text="Dark mode",
                                         variable=self.theme_var, value="dark",
                                         command=select_dark_mode,
-                                        font=ctk.CTkFont(
-                                            size=18, weight="bold"),
+                                        font=ctk.CTkFont(size=18, weight="bold"),
                                         text_color="#6c6c80")
         dark_radio.pack(side="left", pady=(10, 0))
-        dark_radio.place(in_=dark_preview_frame, relx=0.5,
-                         rely=1.08, anchor="center")
+        dark_radio.place(in_=dark_preview_frame, relx=0.5, rely=1.08, anchor="center")
 
         apply_frame = ctk.CTkFrame(content_frame, fg_color="transparent")
         apply_frame.pack(fill="x", padx=20, pady=20)
@@ -862,42 +798,31 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
         settings_file = os.path.join(log_dir, "settings.json")
         try:
             if not os.path.exists(settings_file):
-                logger.warning(
-                    f"Settings file not found at {settings_file}. Using defaults.")
-                raise FileNotFoundError(
-                    f"Settings file not found at {settings_file}")
+                logger.warning(f"Settings file not found at {settings_file}. Using defaults.")
+                raise FileNotFoundError(f"Settings file not found at {settings_file}")
             with open(settings_file, "r") as f:
                 settings = json.load(f)
-                self.unplug_threshold = settings.get(
-                    "unplug_threshold", UNPLUG_THRESHOLD)
-                self.refresh_interval = settings.get(
-                    "refresh_interval", REFRESH_INTERVAL)
-                self.power_saving_mode = settings.get(
-                    "power_saving_mode", False)
+                self.unplug_threshold = settings.get("unplug_threshold", UNPLUG_THRESHOLD)
+                self.refresh_interval = settings.get("refresh_interval", REFRESH_INTERVAL)
+                self.power_saving_mode = settings.get("power_saving_mode", False)
                 ui_settings = settings.get("ui_settings", {})
                 self.custom_logo_path = ui_settings.get("custom_logo_path", "")
-                self.background_color = ui_settings.get(
-                    "background_color", "#F3F3F3")
+                self.background_color = ui_settings.get("background_color", "#F3F3F3")
                 self.text_color = ui_settings.get("text_color", "#000000")
                 self.appearance_mode = settings.get("appearance_mode", "light")
                 self.change_appearance_mode(self.appearance_mode)
-                logger.info(
-                    f"Settings loaded from {settings_file}: {settings}")
+                logger.info(f"Settings loaded from {settings_file}: {settings}")
         except FileNotFoundError as e:
             logger.error(f"Failed to load settings due to file not found: {e}")
-            messagebox.showerror(
-                "Error", f"Failed to load settings. Using defaults. Details: {e}")
+            messagebox.showerror("Error", f"Failed to load settings. Using defaults. Details: {e}")
             self.save_settings_to_file()
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse settings file {settings_file}: {e}")
-            messagebox.showerror(
-                "Error", f"Failed to load settings due to invalid JSON. Using defaults. Details: {e}")
+            messagebox.showerror("Error", f"Failed to load settings due to invalid JSON. Using defaults. Details: {e}")
             self.save_settings_to_file()
         except Exception as e:
-            logger.error(
-                f"Unexpected error loading settings from {settings_file}: {e}")
-            messagebox.showerror(
-                "Error", f"Failed to load settings. Using defaults. Details: {e}")
+            logger.error(f"Unexpected error loading settings from {settings_file}: {e}")
+            messagebox.showerror("Error", f"Failed to load settings. Using defaults. Details: {e}")
             self.save_settings_to_file()
         if not is_auto_start_enabled():
             logger.info("Auto-start not enabled, enabling it now...")
@@ -921,29 +846,25 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
             logger.info(f"Settings saved to settings.json: {settings}")
         except Exception as e:
             logger.error(f"Failed to save settings: {e}")
-            messagebox.showerror(
-                "Error", "Failed to save settings. Check logs for details.")
+            messagebox.showerror("Error", "Failed to save settings. Check logs for details.")
 
     def apply_settings(self):
         try:
             unplug_threshold = self.threshold_var.get()
             if not 1 <= unplug_threshold <= 100:
-                messagebox.showerror(
-                    "Error", "Unplug threshold must be between 1 and 100.")
+                messagebox.showerror("Error", "Unplug threshold must be between 1 and 100.")
                 return
             if VERSION == "PRO":
                 refresh_interval = self.refresh_var.get()
                 if refresh_interval <= 0:
-                    messagebox.showerror(
-                        "Error", "Refresh interval must be greater than 0.")
+                    messagebox.showerror("Error", "Refresh interval must be greater than 0.")
                     return
                 self.refresh_interval = refresh_interval
             self.unplug_threshold = unplug_threshold
             self.power_saving_mode = self.power_saving_var.get()
             self.custom_logo_path = self.logo_var.get().strip()
             if self.custom_logo_path and not os.path.exists(self.custom_logo_path):
-                messagebox.showwarning(
-                    "Warning", "Logo file not found. It won’t be displayed until a valid path is provided.")
+                messagebox.showwarning("Warning", "Logo file not found. It won’t be displayed until a valid path is provided.")
 
             self.setup_left_panel(refresh=True)
             self.show_settings_confirmation()
@@ -1028,42 +949,35 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
             try:
                 logo_img = Image.open(self.custom_logo_path)
                 target_size = 100
-                ratio = min(
-                    target_size / logo_img.size[0], target_size / logo_img.size[1])
+                ratio = min(target_size / logo_img.size[0], target_size / logo_img.size[1])
                 new_width = int(logo_img.size[0] * ratio)
                 new_height = int(logo_img.size[1] * ratio)
-                logo_img = logo_img.resize(
-                    (new_width, new_height), Image.Resampling.LANCZOS)
+                logo_img = logo_img.resize((new_width, new_height), Image.Resampling.LANCZOS)
                 logo_photo = ImageTk.PhotoImage(logo_img)
-                logo_label = ctk.CTkLabel(
-                    main_frame, image=logo_photo, text="")
+                logo_label = ctk.CTkLabel(main_frame, image=logo_photo, text="")
                 logo_label.image = logo_photo
                 logo_label.pack(pady=(16, 8))
                 row += 1
-                logger.info(
-                    f"Custom logo loaded in unplug prompt from {self.custom_logo_path}")
+                logger.info(f"Custom logo loaded in unplug prompt from {self.custom_logo_path}")
             except Exception as e:
-                logger.error(
-                    f"Failed to load custom logo in unplug prompt: {e}")
+                logger.error(f"Failed to load custom logo in unplug prompt: {e}")
 
         prompt_label = ctk.CTkLabel(main_frame, text="Battery Full!\nPlease Unplug Charger",
-                                    font=ctk.CTkFont(size=20, weight="bold"),
-                                    text_color="#D83B01")
-        prompt_label.pack(pady=(0 if row > 0 else 16, 8))
+                                    font=ctk.CTkFont(size=24, weight="bold"),
+                                    text_color="#FF4500")
+        prompt_label.pack(pady=(0 if row > 0 else 16, 10))
 
         info_label = ctk.CTkLabel(main_frame,
-                                  text="Unplugging your charger when the battery is fully charged:\n"
-                                       "• Extends battery lifespan by preventing overcharging.\n"
-                                       "• Reduces energy waste and lowers your carbon footprint.\n"
-                                       "• Protects your device from potential heat damage.",
-                                  font=ctk.CTkFont(size=12), justify="center")
-        info_label.pack(pady=(0, 16))
+                                  text="Unplugging your charger when the battery is fully charged can help to extend battery\n"
+                                       "lifespan by preventing overcharging. It can also reduce energy waste and lower your\n"
+                                       "carbon footprint, while also protecting your device from potential heat damage.",
+                                  font=ctk.CTkFont(size=14), justify="center")
+        info_label.pack(pady=(0, 20))
 
         self.countdown_label = ctk.CTkLabel(main_frame, text=f"Auto-close in {PROMPT_TIMEOUT}s",
-                                            font=ctk.CTkFont(
-                                                size=14, weight="bold"),
-                                            text_color="#0078D4")
-        self.countdown_label.pack(pady=(0, 16))
+                                            font=ctk.CTkFont(size=18, weight="bold"),
+                                            text_color="#0066CC")
+        self.countdown_label.pack(pady=(0, 20))
 
         def add_close_button():
             elapsed_time = time.time() - self.prompt_start_time
@@ -1074,8 +988,7 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
                                              font=ctk.CTkFont(size=14))
                 close_button.pack(pady=(0, 16))
                 logger.info("Close button added after timeout.")
-                self.unplug_window.bind(
-                    "<Escape>", lambda event: self.close_unplug_prompt())
+                self.unplug_window.bind("<Escape>", lambda event: self.close_unplug_prompt())
 
         self.prompt_start_time = time.time()
         self.unplug_window.after(int(PROMPT_TIMEOUT * 1000), add_close_button)
@@ -1106,12 +1019,10 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
                     battery = psutil.sensors_battery()
                     if battery is not None:
                         break
-                    logger.warning(
-                        f"Battery status None on attempt {attempt + 1}/{max_retries}")
+                    logger.warning(f"Battery status None on attempt {attempt + 1}/{max_retries}")
                     time.sleep(0.1)
                 except Exception as e:
-                    logger.error(
-                        f"Battery status error on attempt {attempt + 1}/{max_retries}: {e}")
+                    logger.error(f"Battery status error on attempt {attempt + 1}/{max_retries}: {e}")
                     time.sleep(0.1)
             idle_time = get_idle_time()
             if battery and not battery.power_plugged:
@@ -1126,17 +1037,14 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
                 elapsed_time = time.time() - self.prompt_start_time
                 if elapsed_time >= PROMPT_TIMEOUT:
                     self.countdown_label.configure(text="Auto-close in 0s")
-                    logger.info(
-                        "Countdown reached 0, waiting for manual close.")
+                    logger.info("Countdown reached 0, waiting for manual close.")
                     if elapsed_time >= PROMPT_TIMEOUT + 30:
                         self.close_unplug_prompt()
-                        logger.warning(
-                            "Prompt stuck after timeout, force closing.")
+                        logger.warning("Prompt stuck after timeout, force closing.")
                         return
                 else:
                     remaining = max(0, PROMPT_TIMEOUT - int(elapsed_time))
-                    self.countdown_label.configure(
-                        text=f"Auto-close in {remaining}s")
+                    self.countdown_label.configure(text=f"Auto-close in {remaining}s")
                     self.unplug_window.after(500, self.monitor_unplug)
         except Exception as e:
             logger.error(f"Error in monitor_unplug: {e}")
@@ -1218,7 +1126,6 @@ Copyright © {time.strftime("%Y")} Save My Cell Team. All rights reserved.
 
     def run(self):
         self.root.mainloop()
-
 
 if __name__ == "__main__":
     app = BatteryMonitorApp()
